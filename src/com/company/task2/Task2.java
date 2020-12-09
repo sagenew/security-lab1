@@ -163,68 +163,70 @@ public class Task2 {
                 subTextBuilder.append(symbol);
                 index += keyLength;
             }
-            if(i == 0)
-            System.out.println(subTextBuilder.toString());
             keyBytes[i] = decryptByte(subTextBuilder.toString());
         }
         return keyBytes;
     }
 
     private byte decryptByte(String text) {
+
         byte key = 0;
-        double fQuotient, minFQuotient = 100;
+        double chiSS, minChiSS = 100000;
         String encryptedText;
         for(int i = 0; i <= 255; i++) {
             encryptedText = encryptByByte(text, (byte) i);
-            fQuotient = calculateFittingQuotient(encryptedText);
-            if (fQuotient < minFQuotient) {
+            chiSS = calculateChiSquaredStatistic(encryptedText);
+            if (chiSS < minChiSS) {
+                System.out.println(chiSS);
+                System.out.println(encryptedText);
                 key = (byte) i;
-                minFQuotient = fQuotient;
+                minChiSS = chiSS;
             }
         }
         return key;
     }
 
-    private double calculateFittingQuotient(String text) {
-        Map<Character, Double> occurrence = getOccurrenceInText(text);
+    private double calculateChiSquaredStatistic(String text) {
+        System.out.println(text);
+        Map<Character, Integer> occurrence = getOccurrenceInText(text);
+        System.out.println(occurrence.toString());
         char ch;
-        double frequencyInText, frequencyInEnglish, absoluteDifference = 0;
-        for (Map.Entry<Character, Double> entry : occurrence.entrySet()) {
+        double countInText, countInEnglish, difference, absoluteDifference = 0;
+        for (Map.Entry<Character, Integer> entry : occurrence.entrySet()) {
             ch = entry.getKey();
             if(occurrenceEnglish.containsKey(ch)) {
-                frequencyInText = entry.getValue();
-                frequencyInEnglish = occurrenceEnglish.get(ch);
-                absoluteDifference += abs(frequencyInText - frequencyInEnglish);
+                countInText = entry.getValue();
+                countInEnglish = occurrenceEnglish.get(ch) * text.length();
+                System.out.println(ch + " : " + countInText + " " + countInEnglish);
+                difference = Math.pow((countInText - countInEnglish), 2) / countInEnglish;
+                absoluteDifference += difference;
             }
         }
-        return absoluteDifference / ENGLISH_ALPHABET_LENGTH;
+        return absoluteDifference;
     }
 
-    private Map<Character, Double> getOccurrenceInText(String text) {
-        Map<Character, Double> occurrence = initAlphabetMap();
+    private Map<Character, Integer> getOccurrenceInText(String text) {
+        Map<Character, Integer> occurrence = initAlphabetMap();
         char ch;
-        double count;
+        int count;
         for(int i = 0; i < text.length(); i++) {
             ch = text.charAt(i);
             if(occurrence.containsKey(ch)) {
                 count = occurrence.get(ch);
-                occurrence.put(ch, count + 1.0);
+                occurrence.put(ch, count + 1);
             }
-        }
-        for(Map.Entry<Character, Double> entry : occurrence.entrySet()) {
-            entry.setValue(entry.getValue() / text.length() * 100);
         }
         return occurrence;
     }
 
-    private Map<Character, Double> initAlphabetMap() {
+    private Map<Character, Integer> initAlphabetMap() {
         return new HashMap<>() {
             {
-                put('a', 0.0); put('b', 0.0); put('c', 0.0); put('d', 0.0); put('e', 0.0); put('f', 0.0);
-                put('g', 0.0); put('h', 0.0); put('i', 0.0); put('j', 0.0); put('k', 0.0); put('l', 0.0);
-                put('m', 0.0); put('n', 0.0); put('o', 0.0); put('p', 0.0); put('q', 0.0); put('r', 0.0);
-                put('s', 0.0); put('t', 0.0); put('u', 0.0); put('v', 0.0); put('w', 0.0); put('x', 0.0);
-                put('y', 0.0); put('z', 0.0);
+                put('a', 0); put('b', 0); put('c', 0); put('d', 0); put('e', 0); put('f', 0);
+                put('g', 0); put('h', 0); put('i', 0); put('j', 0); put('k', 0); put('l', 0);
+                put('m', 0); put('n', 0); put('o', 0); put('p', 0); put('q', 0); put('r', 0);
+                put('s', 0); put('t', 0); put('u', 0); put('v', 0); put('w', 0); put('x', 0);
+                put('y', 0); put('z', 0);
             }
         };
     }
