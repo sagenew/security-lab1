@@ -6,13 +6,12 @@ import org.jfree.data.xy.XYSeriesCollection;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-
-import static java.lang.Math.abs;
 
 public class Task2 {
     private static final String filename = "task2.txt";
@@ -28,47 +27,44 @@ public class Task2 {
             put('y', 1.9913847); put('z', 0.0746517);
         }
     };
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedEncodingException {
         Task2 task = new Task2();
-        String crypto = task.getInput();
-//        Map<Integer, Double> mapOfHammingDistance = new HashMap<>();
-//        System.out.println("--------HAMMING DISTANCES--------");
-//        for(int i = 2; i <= 30; i++) {
-//            double NAvgHD = task.getNAvgHD(crypto, i);
-//            System.out.println(i + "\t" + NAvgHD);
-//            mapOfHammingDistance.put(i, NAvgHD);
-//        }
-//        task.visualiseMapOfHammingDistance(mapOfHammingDistance);
-//
-//        Map<Integer, Double> mapOfCoincidence = new HashMap<>();
-//        System.out.println("------INDEX OF COINCIDENCE-------");
-//        for (int i = 1; i <= 30; i++) {
-//            double indexOfCoincidence = task.getIndexOfCoincidence(crypto, i);
-//            System.out.println(i + "\t" + task.getIndexOfCoincidence(crypto, i));
-//            mapOfCoincidence.put(i, indexOfCoincidence);
-//        }
-//        task.visualiseMapOfCoincidence(mapOfCoincidence);
+        String crypto16 = task.getInput();
+        String crypto = decode(crypto16);
+        System.out.println(crypto);
+        Map<Integer, Double> mapOfHammingDistance = new HashMap<>();
+        System.out.println("--------HAMMING DISTANCES--------");
+        for(int i = 2; i <= 30; i++) {
+            double NAvgHD = task.getNAvgHD(crypto, i);
+            System.out.println(i + "\t" + NAvgHD);
+            mapOfHammingDistance.put(i, NAvgHD);
+        }
+        task.visualiseMapOfHammingDistance(mapOfHammingDistance);
 
-//        Scanner scanner = new Scanner(System.in);
-//        String key;
-//        String decrypto;
-//        int keyLength;
-//        boolean keyFound = false;
-//        System.out.println("Insert the value of key length: ");
-//        while (!keyFound) {
-//            keyLength = scanner.nextInt();
-//            key = task.decryptKey(crypto, keyLength);
-//            System.out.println(key);
-//            decrypto = task.encryptByKey(crypto, key);
-//            System.out.println(decrypto);
-//        }
-        String text = "ABCABC";
-        byte [] key = new byte[] {0,7,22};
-//        System.out.println(task.encryptByKey(text, key));
-//        System.out.println(task.encryptByKey(task.encryptByKey(text, key), key));
-//        System.out.println(Arrays.toString(task.decryptKey(crypto, 3)));
-        System.out.println(task.encryptByKey(crypto, task.decryptKey(crypto, 3)));
+        Map<Integer, Double> mapOfCoincidence = new HashMap<>();
+        System.out.println("------INDEX OF COINCIDENCE-------");
+        for (int i = 1; i <= 30; i++) {
+            double indexOfCoincidence = task.getIndexOfCoincidence(crypto, i);
+            System.out.println(i + "\t" + task.getIndexOfCoincidence(crypto, i));
+            mapOfCoincidence.put(i, indexOfCoincidence);
+        }
+        task.visualiseMapOfCoincidence(mapOfCoincidence);
 
+        Scanner scanner = new Scanner(System.in);
+        byte [] key;
+        String decrypto;
+        int keyLength;
+        while (true) {
+            System.out.println("Insert the value of key length: ");
+            keyLength = scanner.nextInt();
+            key = task.decryptKey(crypto, keyLength);
+            System.out.println(Arrays.toString(key));
+            decrypto = task.encryptByKey(crypto, key);
+            System.out.println(decrypto);
+            System.out.println("Does it look like the desired result ? (y/n)");
+            String answer = scanner.next();
+            if (answer.equals("y")) break;
+        }
     }
 
     private void visualiseMapOfCoincidence(Map<Integer, Double> map) {
@@ -138,7 +134,6 @@ public class Task2 {
         byte [] cryptoBytes = new byte[textBytes.length];
         for (int i = 0; i < textBytes.length; i++) {
             cryptoBytes[i] = (byte) (textBytes[i] ^ key[i % key.length]);
-//            System.out.println(textBytes[i] + " ^ " + key[i % key.length] + " = " + cryptoBytes[i]);
         }
         return new String(cryptoBytes);
     }
@@ -169,7 +164,6 @@ public class Task2 {
     }
 
     private byte decryptByte(String text) {
-
         byte key = 0;
         double chiSS, minChiSS = 100000;
         String encryptedText;
@@ -177,8 +171,6 @@ public class Task2 {
             encryptedText = encryptByByte(text, (byte) i);
             chiSS = calculateChiSquaredStatistic(encryptedText);
             if (chiSS < minChiSS) {
-                System.out.println(chiSS);
-                System.out.println(encryptedText);
                 key = (byte) i;
                 minChiSS = chiSS;
             }
@@ -187,9 +179,7 @@ public class Task2 {
     }
 
     private double calculateChiSquaredStatistic(String text) {
-        System.out.println(text);
         Map<Character, Integer> occurrence = getOccurrenceInText(text);
-        System.out.println(occurrence.toString());
         char ch;
         double countInText, countInEnglish, difference, absoluteDifference = 0;
         for (Map.Entry<Character, Integer> entry : occurrence.entrySet()) {
@@ -197,7 +187,6 @@ public class Task2 {
             if(occurrenceEnglish.containsKey(ch)) {
                 countInText = entry.getValue();
                 countInEnglish = occurrenceEnglish.get(ch) * text.length();
-                System.out.println(ch + " : " + countInText + " " + countInEnglish);
                 difference = Math.pow((countInText - countInEnglish), 2) / countInEnglish;
                 absoluteDifference += difference;
             }
@@ -244,5 +233,14 @@ public class Task2 {
             ex.printStackTrace();
         }
         return sb.toString();
+    }
+
+    private static String decode(String text) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < text.length(); i += 2) {
+            char decodedChar = (char) Integer.parseInt(text.substring(i, i + 2), 16);
+            builder.append(decodedChar);
+        }
+        return builder.toString();
     }
 }
