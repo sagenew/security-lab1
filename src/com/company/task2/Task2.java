@@ -6,7 +6,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,7 +14,6 @@ import java.util.Scanner;
 
 public class Task2 {
     private static final String filename = "task2.txt";
-    private static final int ENGLISH_ALPHABET_LENGTH = 26;
     private static final Map<Character, Double> occurrenceEnglish = new HashMap<>() {
         {
             put('a', 8.2389258); put('b', 1.5051398); put('c', 2.8065007); put('d', 4.2904556);
@@ -27,7 +25,7 @@ public class Task2 {
             put('y', 1.9913847); put('z', 0.0746517);
         }
     };
-    public static void main(String[] args) throws UnsupportedEncodingException {
+    public static void main(String[] args) {
         Task2 task = new Task2();
         String crypto16 = task.getInput();
         String crypto = decode(crypto16);
